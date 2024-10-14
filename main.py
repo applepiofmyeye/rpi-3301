@@ -1,31 +1,44 @@
-from message import Message
+from send import Send
 from tool_recognition import ToolRecognition
 import time
-msg = Message()
+from receive import Receive
+send = Send()
 toolRecognition = ToolRecognition()
+receive = Receive()
 
 # Inspect the tool (cam 1)
 
 #Send the x and y coordinates to the robot arm
-info_arr = toolRecognition.locate()
-for info in info_arr:
-    msg.send_x(int(info.x_coord))
-    time.sleep(3)
-    msg.send_y(int(info.y_coord))
-    time.sleep(3)
-    print(info.class_id)
+while True:
+    status = receive.receive_from_arm()
+    receive.connect_to_mqtt()
+    if status == 1: # Observation point
+        # TODO: Inspect
 
-    # In the arm:
-    # Pick the tool 
-    # Show to second camera
-    # Place to the box coordinates
-    # Release
+        # Observe
+        x_coord, y_coord, class_id = toolRecognition.locate()[0]
+        send.send_x(int(x_coord))
+        time.sleep(3)
+        send.send_y(int(y_coord))
+        time.sleep(3)
+        print(class_id)
 
-    # Check if the tool is placed (load cell, take from arduino)
+        
+    elif status == 2: # Inspection point 
+        # TODO: Inspect
+        pass
 
-    # If placed, go back to inspection point
+        # Send the type of the tool (which box to put)
+        send.send_type(class_id)
+        time.sleep(3)
 
-# Loop: one loop = pick and place 1 whole tool.
+        # Arm: goes to the respective box
 
-
-
+        # Check if the tool is placed (load cell, take from arduino)
+        # If placed, go back to inspection point
+        while not receive.isPlaced == "placed":
+            time.sleep(1)
+        
+        if receive.isPlaced == "placed":
+            send.send_load_cell(1)
+            time.sleep(3)

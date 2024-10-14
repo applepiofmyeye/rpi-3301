@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 import time
 GPIO.setmode(GPIO.BOARD)
-class Message:
+class Send:
 
     def convert_to_bits(self, value, num_of_bits):
         return list(bin(value)[2:].zfill(num_of_bits))
@@ -25,8 +25,21 @@ class Message:
         self.send(pins, value_in_bits)
     
 
+    def send_type(self, value):
+        pins = [16, 18]
+        value_in_bits = self.convert_to_bits(value, 2)
+        self.send(pins, value_in_bits)
+    
+    def send_load_cell(self, value):
+        pins = [7, 32]
+        value_in_bits = self.convert_to_bits(3, 2)
+        self.send(pins, value_in_bits)
 
+        pins = [36, 15, 19, 21, 23, 29, 31, 33, 35, 37]
+        value_in_bits = self.convert_to_bits(value, 10) 
+        self.send(pins, value_in_bits)
 
+        
     def send(self, pins, value_in_list_of_bits):
 
         for i in range(len(value_in_list_of_bits)):
