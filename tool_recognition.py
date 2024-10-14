@@ -34,12 +34,18 @@ class Camera:
 
         return frame
 
+class Info:
+    def __init__(self, x, y, class_id):
+        self.x_coord = x
+        self.y_coord = y
+        self.class_id = class_id
+
 class ToolRecognition:
     # Load your custom YOLOv8 model
     camera = Camera()
     def __init__(self):
-        self.x_coord = 0.00
-        self.y_coord = 0.00
+        self.info = []
+
         self.model = YOLO('./models/last.pt')
 
     def locate(self):
@@ -79,11 +85,9 @@ class ToolRecognition:
 
                     x_mm = (x_pix / self.camera.CAMERA_WIDTH_PIXELS) * self.camera.CAMERA_WIDTH_MM 
                     y_mm = (y_pix / self.camera.CAMERA_HEIGHT_PIXELS) * self.camera.CAMERA_HEIGHT_MM
-                    self.x_coord = x_mm 
-                    self.y_coord = y_mm 
-
+                    self.info.append(Info(x_mm, y_mm, class_id))
                         
-                    print(f"Center of the tool is at ({self.x_coord}, {self.y_coord})")
+                    print(f"Center of the tool is at ({x_mm}, {x_mm})")
                 
 
             image_id = str(uuid.uuid1())
@@ -92,4 +96,4 @@ class ToolRecognition:
             print("No frame to process.")
 
 
-        return self.x_coord, self.y_coord
+        return self.info
