@@ -15,11 +15,17 @@ for info in info_arr:
     time.sleep(3)
     print(info.class_id)
 
-# Pick the tool 
+    # In the arm:
+    # Pick the tool 
+    # Show to second camera
+    # Place to the box coordinates
+    # Release
 
-# Check if the tool is placed (load cell, take from arduino). if is placed
+    # Check if the tool is placed (load cell, take from arduino)
 
-# If placed, take picture from cam 1 (inspection)
+    # If placed, go back to inspection point
+
+# Loop: one loop = pick and place 1 whole tool.
 
 
 
