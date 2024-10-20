@@ -7,9 +7,9 @@ import uuid
 
 class Camera:
     # Function to capture a single frame using OpenCV
-    CAMERA_WIDTH_MM = 240 
-    CAMERA_HEIGHT_MM = 180 
-    CAMERA_WIDTH_PIXELS = 640
+    CAMERA_WIDTH_MM = 450 
+    CAMERA_HEIGHT_MM = 280 
+    CAMERA_WIDTH_PIXELS = 768
     CAMERA_HEIGHT_PIXELS = 480
     def __init__(self):
         pass
@@ -54,8 +54,8 @@ class ToolRecognition:
         frame = None
 
         while frame is None:
-            frame = self.camera.capture_single_frame()
-            
+            #frame = self.camera.capture_single_frame()
+            frame = "./images/"
         if frame is not None:
             # Run YOLOv8 inference on the captured frame
             results = self.model.predict(frame)
@@ -74,13 +74,23 @@ class ToolRecognition:
                         
                     # Print detection data
                     print(f"Detected {label} at coordinates: ({x1}, {y1}, {x2}, {y2})")
-                    x_pix = (x1 + x2) / 2
-                    y_pix = (y1 + y2) / 2
+                    #xi = (x1 + x2) / 2
+                    #yi = (y1 + y2) / 2
+                    #change_y_arm_px = xi - 320
+                    #change_x_arm_px = 270 - yi
 
-                    x_mm = (x_pix / self.camera.CAMERA_WIDTH_PIXELS) * self.camera.CAMERA_WIDTH_MM 
-                    y_mm = (y_pix / self.camera.CAMERA_HEIGHT_PIXELS) * self.camera.CAMERA_HEIGHT_MM
-                    self.x_coord = x_mm 
-                    self.y_coord = y_mm 
+                    #change_y_arm_mm = (self.camera.CAMERA_HEIGHT_MM / self.camera.CAMERA_HEIGHT_PIXELS) * change_y_arm_px
+                    #change_x_arm_mm = (self.camera.CAMERA_WIDTH_MM / self.camera.CAMERA_WIDTH_PIXELS) * change_x_arm_px
+
+                    #y_arm_mm = change_y_arm_mm - 233
+                    #x_arm_mm = change_x_arm_mm + 263
+
+
+
+
+
+                    self.x_coord = int((x1 + x2) / 2) 
+                    self.y_coord = int((y1 + y2) / 2) 
 
                         
                     print(f"Center of the tool is at ({self.x_coord}, {self.y_coord})")

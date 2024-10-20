@@ -1,11 +1,11 @@
-from message import Message
+from send import Send 
 from tool_recognition import ToolRecognition
 import time
-msg = Message()
+msg = Send()
 toolRecognition = ToolRecognition()
 
 x, y = toolRecognition.locate()
-msg.send("x", int(x))
+msg.send_x(int(x))
 time.sleep(3)
-msg.send("y", int(y))
+msg.send_y(int(y))
 time.sleep(3)
