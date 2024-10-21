@@ -6,7 +6,14 @@ send = Send()
 toolRecognition = ToolRecognition()
 receive = Receive()
 
+model_classes = ["Scissors", "Scalpel", "Scissors", "Scissors"]
+communicated_classes = ["", "Scissors", "Scalpel", "Dirty"]
 
+def translate_tool_class(model_class):
+    if model_class > 1 or model_class == 0:
+        return 1
+    else:
+        return 2
 
 # Inspect the tool (cam 1)
 def main():
@@ -21,8 +28,6 @@ def main():
         12. rpi sends the type to the arm
         
         16. arduino reads load cell
-        17. rpi receives load cell “tool is placed” from arduino
-        18. rpi tells arm tool is placed
     """ 
 
     # Setup
@@ -30,41 +35,31 @@ def main():
 
     #Send the x and y coordinates to the robot arm
     while True:
-        # Wait for status 2
+        # Wait for status 1
         status = receive.receive_from_arm()
 
         if status == 1: # Observation point
-            # TODO: Inspect
+            """
+                Observe before inspecting: so that all the tools have been initialised.
+            """
+            # Observe, get the first one detected.
+            x_coord, y_coord, type, img = toolRecognition.locate()[0]
 
-            # Observe
-            x_coord, y_coord, class_id = toolRecognition.locate()[0]
+            #Inspect
+            isClean = toolRecognition.isClean(img)
+
+            # Get the actual class_id of the tool if it's clean, else it's dirty (class 3)
+            type = translate_tool_class(type) if isClean else 3
+
+            print(f"Picking the tool at: {x_coord}, {y_coord}, with type: {communicated_classes[type]}")
 
             # Send data to the robot arm
             send.send_x(int(x_coord))
             time.sleep(3)
             send.send_y(int(y_coord))
             time.sleep(3)
-            print(class_id)
-
-            
-        elif status == 2: # Inspection point 
-            # TODO: Inspect
-            pass
-
-            # Send the type of the tool (which box to put)
-            send.send_type(class_id)
-            time.sleep(3)
-
-            # Arm: goes to the respective box
-
-            # Check if the tool is placed (load cell, take from arduino)
-            # If placed, go back to inspection point
-            while not receive.isPlaced == "placed":
-                time.sleep(1)
-            
-            if receive.isPlaced == "placed":
-                send.send_load_cell(1)
-                time.sleep(3)
+            send.send_type(type)
+            print(type)
 
 if __name__ == "__main__":
     main()
