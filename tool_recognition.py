@@ -40,7 +40,8 @@ class ToolRecognition:
     def __init__(self):
         self.x_coord = 0.00
         self.y_coord = 0.00
-        self.model = YOLO('./models/last.pt')
+        self.identify_model = YOLO('./models/last.pt')
+        self.inspect_model= YOLO('./models/best.pt')
 
     def locate(self):
         """
@@ -54,8 +55,7 @@ class ToolRecognition:
         frame = None
 
         while frame is None:
-            #frame = self.camera.capture_single_frame()
-            frame = "./images/"
+            frame = self.camera.capture_single_frame()
         if frame is not None:
             # Run YOLOv8 inference on the captured frame
             results = self.model.predict(frame)
@@ -103,3 +103,28 @@ class ToolRecognition:
 
 
         return self.x_coord, self.y_coord
+
+    def inspect(self):
+        frame = None
+
+        while frame is None:
+            frame = self.camera.capture_single_frame()
+        if frame is not None:
+            # Run YOLOv8 inference on the captured frame
+            results = self.inspect_model(frame)
+            # Process results
+            for result in results:
+                boxes = result.boxes.cpu().numpy()
+                for box in boxes:
+                    x1, y1, x2, y2 = box.xyxy[0].astype(int)
+                    class_id = box.cls[0].astype(int)
+                    conf = box.conf[0]
+                        
+                    # Draw bounding box and label
+                    cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                    label = f"{self.inspect_model.names[class_id]} {conf:.2f}"
+                    cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+                        
+                    # Print detection data
+                    print(f"Detected {label} at coordinates: ({x1}, {y1}, {x2}, {y2})")
+         
