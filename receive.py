@@ -1,5 +1,4 @@
 from RPi import GPIO
-import paho.mqtt.client as mqtt
 import time
 GPIO.setmode(GPIO.BOARD)
 class Receive:

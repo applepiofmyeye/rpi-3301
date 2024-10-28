@@ -7,11 +7,12 @@ import uuid
 
 class Camera:
     # Function to capture a single frame using OpenCV
-    CAMERA_WIDTH_MM = 240 
-    CAMERA_HEIGHT_MM = 180 
+    CAMERA_WIDTH_MM = 480 
+    CAMERA_HEIGHT_MM = 280 
     CAMERA_WIDTH_PIXELS = 640
     CAMERA_HEIGHT_PIXELS = 480
     def __init__(self):
+        #self.index = index
         pass
 
     def capture_single_frame(self):
@@ -33,18 +34,17 @@ class Camera:
         return frame
 
 class Info:
-    def __init__(self, x, y, type, cropped_img):
+    def __init__(self, x, y, class_id, cropped_img):
         self.x_coord = x
         self.y_coord = y
-        self.type = type
+        self.class_id = class_id
         self.cropped_img = cropped_img
 
     def __iter__(self):
-        return iter((self.x_coord, self.y_coord, self.type))
+        return iter((self.x_coord, self.y_coord, self.class_id, self.cropped_img))
 
 class ToolRecognition:
     # Load your custom YOLOv8 model
-    camera = Camera()
     def __init__(self):
         self.info = []
         self.identify_model = YOLO('./models/last.pt') 
@@ -58,11 +58,12 @@ class ToolRecognition:
             - Processes the results
             - Sends the x and y coordinates (in mm) to the raspberry pi
         """
+        camera = Camera()
         
         frame = None
 
         while frame is None:
-            frame = self.camera.capture_single_frame()
+            frame = camera.capture_single_frame()
             
         if frame is not None:
             # Run YOLOv8 inference on the captured frame
@@ -85,8 +86,8 @@ class ToolRecognition:
                     
                 # Print detection data
                 print(f"Detected {label} at coordinates: ({x1}, {y1}, {x2}, {y2})")
-                x_mm = int((x1 + x2) / 2) 
-                y_mm = int((y1 + y2) / 2) 
+                x_mm = (0.5968 * int((x1 + x2) / 2)) + 164.15 
+                y_mm = (0.7824 * int((y1 + y2) / 2)) - 350.42 
                 self.info.append(Info(x_mm, y_mm, class_id, cropped_img))
                     
                 print(f"Center of the tool is at ({x_mm}, {y_mm})")
@@ -120,4 +121,21 @@ class ToolRecognition:
             print("Tool is clean.")
             return True
     
-    
+    def isClean_takePicture(self):
+        camera = Camera()
+        while frame is None:
+            frame = camera.capture_single_frame()
+            
+        if frame is not None:
+            # Run YOLOv8 inference on the captured frame
+            results = self.identify_model.predict(frame)
+            # Process first results
+            for result in results:
+                if len(results) > 0:
+                    print("Tool is dirty")
+                    return False
+                else:
+                    print("Tool is clean")
+                    return True
+
+
