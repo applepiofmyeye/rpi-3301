@@ -49,13 +49,9 @@ def main():
             
             x_coord, y_coord, class_id, img = results[0]
 
-            #Inspect
-            isClean = toolRecognition.isClean(img)
-
             # Get the actual class_id of the tool if it's clean, else it's dirty (class 3)
             class_id = translate_tool_class(class_id) if isClean else 3
 
-            print(f"Picking the tool at: {x_coord}, {y_coord}, with type: {communicated_classes[class_id]}")
 
             # Send data to the robot arm
             send.send_x(int(x_coord))
@@ -64,7 +60,12 @@ def main():
             send.send_y(-212)
             send.send_y(int(y_coord))
             time.sleep(2)
-            print(class_id)
+            
+            print(f"Picking the tool at: {x_coord}, {y_coord}, with type: {communicated_classes[class_id]}")
+            
+            #Inspect
+            isClean = toolRecognition.isClean(img)
+            
         elif status == 2:
             isClean = toolRecognition.isClean_takePicture()
             class_id = class_id if isClean else 3

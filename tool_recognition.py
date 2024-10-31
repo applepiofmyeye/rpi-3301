@@ -7,16 +7,14 @@ import uuid
 
 class Camera:
     # Function to capture a single frame using OpenCV
-    CAMERA_WIDTH_MM = 480 
-    CAMERA_HEIGHT_MM = 280 
-    CAMERA_WIDTH_PIXELS = 640
-    CAMERA_HEIGHT_PIXELS = 480
+    CAMERA_WIDTH_PIXELS = 1280
+    CAMERA_HEIGHT_PIXELS = 720
     def __init__(self):
         #self.index = index
         pass
 
-    def capture_single_frame(self):
-        cap = cv2.VideoCapture(0)  # Open the default camera (index 0)
+    def capture_single_frame(self, camera_number):
+        cap = cv2.VideoCapture(camera_number)  # Open the default camera (index 0)
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.CAMERA_WIDTH_PIXELS)  # Set the width
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.CAMERA_HEIGHT_PIXELS)  # Set the height
 
@@ -58,7 +56,7 @@ class ToolRecognition:
             - Processes the results
             - Sends the x and y coordinates (in mm) to the raspberry pi
         """
-        camera = Camera()
+        camera = Camera(0)
         
         frame = None
 
@@ -122,7 +120,7 @@ class ToolRecognition:
             return True
     
     def isClean_takePicture(self):
-        camera = Camera()
+        camera = Camera(1)
         while frame is None:
             frame = camera.capture_single_frame()
             
@@ -130,12 +128,11 @@ class ToolRecognition:
             # Run YOLOv8 inference on the captured frame
             results = self.identify_model.predict(frame)
             # Process first results
-            for result in results:
-                if len(results) > 0:
-                    print("Tool is dirty")
-                    return False
-                else:
-                    print("Tool is clean")
-                    return True
+            if len(results) > 0:
+                print("Tool is dirty")
+                return False
+            else:
+                print("Tool is clean")
+                return True
 
 
