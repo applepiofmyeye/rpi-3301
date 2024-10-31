@@ -9,8 +9,8 @@ class Camera:
     # Function to capture a single frame using OpenCV
     CAMERA_WIDTH_PIXELS = 1280
     CAMERA_HEIGHT_PIXELS = 720
-    def __init__(self):
-        #self.index = index
+    def __init__(self, index):
+        self.index = index
         pass
 
     def capture_single_frame(self, camera_number):
@@ -84,15 +84,13 @@ class ToolRecognition:
                     
                 # Print detection data
                 print(f"Detected {label} at coordinates: ({x1}, {y1}, {x2}, {y2})")
-                x_mm = (0.5968 * int((x1 + x2) / 2)) + 164.15 
-                y_mm = (0.7824 * int((y1 + y2) / 2)) - 350.42 
+                x_mm = (0.4626 * int((x1 + x2) / 2)) + 241.8 
+                y_mm = (0.4495 * int((y1 + y2) / 2)) - 410.1  
                 self.info.append(Info(x_mm, y_mm, class_id, cropped_img))
                     
                 print(f"Center of the tool is at ({x_mm}, {y_mm})")
             
 
-            image_id = str(uuid.uuid1())
-            cv2.imwrite(f"./images/{image_id}.jpg", frame)
         else:
             print("No frame to process.")
         return self.info
@@ -120,7 +118,7 @@ class ToolRecognition:
             return True
     
     def isClean_takePicture(self):
-        camera = Camera(1)
+        camera = Camera(2)
         while frame is None:
             frame = camera.capture_single_frame()
             
