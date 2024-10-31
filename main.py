@@ -47,7 +47,7 @@ def main():
                 print("No tool detected")
                 continue
             
-            x_coord, y_coord, class_id, img = results[0]
+            x_coord, y_coord, class_id = results[0]
 
             # Get the actual class_id of the tool if it's clean, else it's dirty (class 3)
             class_id = translate_tool_class(class_id) if isClean else 3
@@ -64,10 +64,10 @@ def main():
             print(f"Picking the tool at: {x_coord}, {y_coord}, with type: {communicated_classes[class_id]}")
             
             #Inspect
-            isClean = toolRecognition.isClean(img)
+            isClean = toolRecognition.isClean_takePicture(0)
             
         elif status == 2:
-            isClean = toolRecognition.isClean_takePicture()
+            isClean = toolRecognition.isClean_takePicture(2)
             class_id = class_id if isClean else 3
 
             print(f"Inspected the tool at with type: {communicated_classes[class_id]}, clean?: {isClean}")

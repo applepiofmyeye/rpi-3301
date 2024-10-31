@@ -32,14 +32,13 @@ class Camera:
         return frame
 
 class Info:
-    def __init__(self, x, y, class_id, cropped_img):
+    def __init__(self, x, y, class_id):
         self.x_coord = x
         self.y_coord = y
         self.class_id = class_id
-        self.cropped_img = cropped_img
 
     def __iter__(self):
-        return iter((self.x_coord, self.y_coord, self.class_id, self.cropped_img))
+        return iter((self.x_coord, self.y_coord, self.class_id))
 
 class ToolRecognition:
     # Load your custom YOLOv8 model
@@ -64,6 +63,9 @@ class ToolRecognition:
             frame = camera.capture_single_frame()
             
         if frame is not None:
+            # Define crop area (adjust these values as needed)
+            x_start, y_start, x_end, y_end = 92, 29, 1187, 674
+            frame = frame[y_start:y_end, x_start:x_end]
             # Run YOLOv8 inference on the captured frame
             results = self.identify_model.predict(frame)
             # Process first results
@@ -79,14 +81,12 @@ class ToolRecognition:
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
                 label = f"{self.identify_model.names[class_id]} {conf:.2f}"
                 cv2.putText(frame, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-                # Crop image
-                cropped_img = frame [y1:y2, x1:x2]
                     
                 # Print detection data
                 print(f"Detected {label} at coordinates: ({x1}, {y1}, {x2}, {y2})")
                 x_mm = (0.4626 * int((x1 + x2) / 2)) + 241.8 
                 y_mm = (0.4495 * int((y1 + y2) / 2)) - 410.1  
-                self.info.append(Info(x_mm, y_mm, class_id, cropped_img))
+                self.info.append(Info(x_mm, y_mm, class_id))
                     
                 print(f"Center of the tool is at ({x_mm}, {y_mm})")
             
@@ -117,8 +117,8 @@ class ToolRecognition:
             print("Tool is clean.")
             return True
     
-    def isClean_takePicture(self):
-        camera = Camera(2)
+    def isClean_takePicture(self, camera_number):
+        camera = Camera(camera_number)
         while frame is None:
             frame = camera.capture_single_frame()
             
